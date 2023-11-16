@@ -191,7 +191,12 @@ export interface ProjectsUser {
   occurrence: number;
   final_mark: number | null;
   // status: Status;
-  status: string | 'in_progress' | 'finished';
+  status:
+    | string
+    | 'in_progress'
+    | 'finished'
+    | 'searching_a_group'
+    | 'waiting_for_correction';
   'validated?': boolean | null;
   current_team_id: number;
   project: Project;
