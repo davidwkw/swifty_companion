@@ -6,93 +6,156 @@ import {
   ViewStyle,
   processColor,
 } from 'react-native';
-import React, {PropsWithChildren, useState, useCallback} from 'react';
+import React, {PropsWithChildren, useState, useEffect} from 'react';
 import {Skill} from '../../types/user';
-import {BarChart} from 'react-native-chart-kit';
-import {ChartData} from 'react-native-chart-kit/dist/HelperTypes';
-import {LayoutChangeEvent} from 'react-native';
-import {AbstractChartConfig} from 'react-native-chart-kit/dist/AbstractChart';
+import {
+  ChartDescription,
+  ChartLegend,
+  RadarChart,
+  RadarData,
+  xAxis,
+  yAxis,
+} from 'react-native-charts-wrapper';
 
-import {RadarChart} from 'react-native-charts-wrapper';
-
-import * as COLORS from '../../constants/Colors';
+import * as COLORS from '../../styles/Colors';
 
 type SkillsSectionProps = PropsWithChildren<{
   skills: Skill[];
   containerStyle?: StyleProp<ViewStyle>;
 }>;
 
-const chartConfig: AbstractChartConfig = {
-  color(opacity): string {
-    console.log('opacity' + opacity);
-    return 'green';
-  },
-  backgroundColor: '#fff',
+type ModifiedXAxis = xAxis & {
+  valueFormatter?: string[] | undefined;
 };
 
-const widthPercentage = 1;
-const heightPercentage = 1;
+type RadarDataWithXAxis = {
+  radarData: RadarData;
+  xAxis: ModifiedXAxis;
+};
+
+const legendConfig: ChartLegend = {
+  enabled: false,
+};
+
+const yAxisConfig: yAxis = {
+  drawLabels: false,
+};
+
+const chartDescriptionConfig: ChartDescription = {
+  text: '',
+};
 
 export default function SkillsSection({
   skills,
   containerStyle,
 }: SkillsSectionProps): JSX.Element {
-  const data: ChartData = skills.reduce(
-    (acc, skill): ChartData => {
-      acc.labels.push(skill.name);
-      acc.datasets[0].data.push(skill.level);
-      return acc;
-    },
-    {
-      labels: [],
-      datasets: [{data: []}],
-    } as ChartData,
-  );
-  const [parentViewDimensions, setParentViewDimensions] = useState<{
-    width: number;
-    height: number;
-  }>({width: 0, height: 0});
+  const [data, setData] = useState<RadarData>({});
+  const [xAxisConfig, setXAxisConfig] = useState<xAxis>({});
 
-  const onComponentLayout = useCallback((event: LayoutChangeEvent): void => {
-    const {width, height} = event.nativeEvent.layout;
-    setParentViewDimensions({width, height});
-  }, []);
+  useEffect((): void => {
+    const tempData = skills.reduce(
+      (acc, skill): RadarDataWithXAxis => {
+        acc.radarData.dataSets![0].values!.push(skill.level);
+        acc.xAxis.valueFormatter!.push(skill.name);
+        return acc;
+      },
+      {
+        radarData: {
+          dataSets: [{values: [], label: ''}],
+        },
+        xAxis: {valueFormatter: []},
+      } as RadarDataWithXAxis,
+    );
+
+    tempData.radarData.dataSets![0].config = {
+      color: processColor(COLORS.FT_PRIMARY),
+      drawFilled: true,
+      fillColor: processColor(COLORS.FT_PRIMARY),
+      fillAlpha: 100,
+      lineWidth: 2,
+      valueTextSize: 12,
+      valueTextColor: processColor(COLORS.FT_SECONDARY),
+    };
+
+    console.log(tempData.radarData.dataSets![0].values);
+    console.log(
+      Math.ceil(
+        Math.max(...(tempData.radarData.dataSets![0].values as number[])) / 10,
+      ) * 10,
+    );
+    console.log(
+      Math.min(...(tempData.radarData.dataSets![0].values as number[])),
+    );
+
+    tempData.xAxis = {
+      ...tempData.xAxis,
+      textSize: 14,
+      textColor: processColor('white'),
+      // axisMaximum:
+      //   Math.ceil(
+      //     Math.max(...(tempData.radarData.dataSets![0].values as number[])) /
+      //       10,
+      //   ) * 10,
+      // axisMinimum: Math.min(
+      //   ...(tempData.radarData.dataSets![0].values as number[]),
+      // ),
+      axisMaximum: 10,
+      axisMinimum: 0,
+    };
+
+    setData(tempData.radarData);
+    setXAxisConfig(tempData.xAxis);
+  }, [skills]);
 
   return (
-    <View
-      onLayout={onComponentLayout}
-      style={[styles.componentContainer, containerStyle]}>
+    <View style={[styles.componentContainer, containerStyle]}>
       <View style={styles.headerView}>
         <Text style={styles.skillText}>Skills:</Text>
       </View>
-      <BarChart
-        style={styles.graphStyle}
-        data={data}
-        width={parentViewDimensions.width * widthPercentage}
-        height={parentViewDimensions.height * heightPercentage}
-        yAxisLabel="Level"
-        yAxisSuffix=""
-        chartConfig={chartConfig}
-        fromZero={true}
-        horizontalLabelRotation={10}
-        showBarTops={true}
-        showValuesOnTopOfBars={true}
-      />
+      <View style={styles.chartContainer}>
+        <RadarChart
+          style={styles.chart}
+          data={data}
+          legend={legendConfig}
+          xAxis={xAxisConfig}
+          yAxis={yAxisConfig}
+          chartDescription={chartDescriptionConfig}
+          drawWeb={true}
+          webLineWidth={2}
+          webLineWidthInner={2}
+          webAlpha={123}
+          webColor={processColor('grey')}
+          webColorInner={processColor(COLORS.FT_SECONDARY)}
+          // onSelect={this.handleSelect.bind(this)}
+          // onChange={event => console.log(event.nativeEvent)}
+        />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  graphStyle: {},
+  chartContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    borderRadius: 20,
+    padding: 10,
+    overflow: 'hidden',
+  },
+  chart: {
+    flex: 1,
+  },
   componentContainer: {
     width: '100%',
     height: '100%',
   },
   skillText: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#fff',
   },
   headerView: {
     marginBottom: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
