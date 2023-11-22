@@ -4,7 +4,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import SearchScreen from '../screens/SearchScreen';
 import {User} from '../types/user';
-import * as Colors from '../constants/Colors';
+import * as COLORS from '../styles/Colors';
 import UserTabNavigator from './UserTabNavigator';
 
 export type RootStackParamList = {
@@ -20,7 +20,7 @@ function StackNavigator(): JSX.Element {
       <Stack.Navigator
         initialRouteName="Search"
         screenOptions={{
-          headerStyle: {backgroundColor: Colors.FT_SECONDARY},
+          headerStyle: {backgroundColor: COLORS.FT_SECONDARY},
           headerTintColor: '#fff',
           headerTitleStyle: {
             fontWeight: 'bold',
@@ -29,7 +29,7 @@ function StackNavigator(): JSX.Element {
         <Stack.Screen
           name="Search"
           component={SearchScreen}
-          options={{title: 'User Search'}}
+          options={{title: '42 User Search'}}
         />
         <Stack.Screen
           name="Profile"
