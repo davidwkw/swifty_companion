@@ -4,132 +4,150 @@ import {
   Text,
   View,
   ViewStyle,
-  processColor,
+  LayoutChangeEvent,
 } from 'react-native';
-import React, {PropsWithChildren, useState, useEffect} from 'react';
+import React, {PropsWithChildren, useState, useMemo, useCallback} from 'react';
 import {Skill} from '../../types/user';
 import {
-  ChartDescription,
-  ChartLegend,
-  RadarChart,
-  RadarData,
-  xAxis,
-  yAxis,
-} from 'react-native-charts-wrapper';
+  VictoryChart,
+  VictoryArea,
+  VictoryPolarAxis,
+  VictoryTheme,
+  VictoryLabel,
+  VictoryVoronoiContainer,
+  VictoryTooltip,
+} from 'victory-native';
+import {VictoryStyleInterface} from 'victory-core';
 
 import * as COLORS from '../../styles/Colors';
 
 type SkillsSectionProps = PropsWithChildren<{
   skills: Skill[];
   containerStyle?: StyleProp<ViewStyle>;
+  chartContainerStyle?: StyleProp<ViewStyle>;
 }>;
 
-type ModifiedXAxis = xAxis & {
-  valueFormatter?: string[] | undefined;
+type VictoryDataPropType = {
+  x: string;
+  y: number;
+  label?: string;
+  symbol?: string;
+  fill?: string;
+  opacity?: number;
 };
 
-type RadarDataWithXAxis = {
-  radarData: RadarData;
-  xAxis: ModifiedXAxis;
+const getMaximum = (data: Skill[]): number => {
+  const levelArray = data.map((d: Skill): number => d.level);
+  return Math.max(...levelArray);
 };
 
-const legendConfig: ChartLegend = {
-  enabled: false,
+const processData = (skillData: Skill[]): VictoryDataPropType[] => {
+  return skillData.map((d: Skill): VictoryDataPropType => {
+    const nameWithNewline = d.name.replace(' ', '\n');
+    return {x: nameWithNewline, y: d.level};
+  });
 };
 
-const yAxisConfig: yAxis = {
-  drawLabels: false,
-};
-
-const chartDescriptionConfig: ChartDescription = {
-  text: '',
-};
+const chartMultiplier = 1;
 
 export default function SkillsSection({
   skills,
   containerStyle,
+  chartContainerStyle,
 }: SkillsSectionProps): JSX.Element {
-  const [data, setData] = useState<RadarData>({});
-  const [xAxisConfig, setXAxisConfig] = useState<xAxis>({});
-
-  useEffect((): void => {
-    const tempData = skills.reduce(
-      (acc, skill): RadarDataWithXAxis => {
-        acc.radarData.dataSets![0].values!.push(skill.level);
-        acc.xAxis.valueFormatter!.push(skill.name);
-        return acc;
-      },
-      {
-        radarData: {
-          dataSets: [{values: [], label: ''}],
-        },
-        xAxis: {valueFormatter: []},
-      } as RadarDataWithXAxis,
-    );
-
-    tempData.radarData.dataSets![0].config = {
-      color: processColor(COLORS.FT_PRIMARY),
-      drawFilled: true,
-      fillColor: processColor(COLORS.FT_PRIMARY),
-      fillAlpha: 100,
-      lineWidth: 2,
-      valueTextSize: 12,
-      valueTextColor: processColor(COLORS.FT_SECONDARY),
-    };
-
-    console.log(tempData.radarData.dataSets![0].values);
-    console.log(
-      Math.ceil(
-        Math.max(...(tempData.radarData.dataSets![0].values as number[])) / 10,
-      ) * 10,
-    );
-    console.log(
-      Math.min(...(tempData.radarData.dataSets![0].values as number[])),
-    );
-
-    tempData.xAxis = {
-      ...tempData.xAxis,
-      textSize: 14,
-      textColor: processColor('white'),
-      // axisMaximum:
-      //   Math.ceil(
-      //     Math.max(...(tempData.radarData.dataSets![0].values as number[])) /
-      //       10,
-      //   ) * 10,
-      // axisMinimum: Math.min(
-      //   ...(tempData.radarData.dataSets![0].values as number[]),
-      // ),
-      axisMaximum: 10,
-      axisMinimum: 0,
-    };
-
-    setData(tempData.radarData);
-    setXAxisConfig(tempData.xAxis);
-  }, [skills]);
+  const [chartContainerDimensions, setChartContainerDimensions] = useState<{
+    width: number;
+    height: number;
+  }>({width: 0, height: 0});
+  const skillData = useMemo(
+    (): VictoryDataPropType[] => processData(skills),
+    [skills],
+  );
+  const maximum = useMemo((): number => getMaximum(skills), [skills]);
+  const onChartLayoutCallback = useCallback(
+    ({nativeEvent}: LayoutChangeEvent): void => {
+      const minimumDimension = Math.min(
+        nativeEvent.layout.width,
+        nativeEvent.layout.height,
+      );
+      setChartContainerDimensions({
+        width: minimumDimension,
+        height: minimumDimension,
+      });
+    },
+    [],
+  );
 
   return (
     <View style={[styles.componentContainer, containerStyle]}>
       <View style={styles.headerView}>
-        <Text style={styles.skillText}>Skills:</Text>
+        <Text style={styles.skillText}>Skills</Text>
       </View>
-      <View style={styles.chartContainer}>
-        <RadarChart
-          style={styles.chart}
-          data={data}
-          legend={legendConfig}
-          xAxis={xAxisConfig}
-          yAxis={yAxisConfig}
-          chartDescription={chartDescriptionConfig}
-          drawWeb={true}
-          webLineWidth={2}
-          webLineWidthInner={2}
-          webAlpha={123}
-          webColor={processColor('grey')}
-          webColorInner={processColor(COLORS.FT_SECONDARY)}
-          // onSelect={this.handleSelect.bind(this)}
-          // onChange={event => console.log(event.nativeEvent)}
-        />
-      </View>
+      {skillData.length === 0 ? (
+        <View style={[styles.chartContainer]}>
+          <Text style={styles.skillText}>No skills to display</Text>
+        </View>
+      ) : (
+        <View
+          style={[styles.chartContainer, chartContainerStyle]}
+          onLayout={onChartLayoutCallback}>
+          <VictoryChart
+            polar
+            theme={VictoryTheme.material}
+            height={chartContainerDimensions.height * chartMultiplier}
+            width={chartContainerDimensions.width * chartMultiplier}
+            containerComponent={
+              <VictoryVoronoiContainer
+                labels={({datum}): string => `Level: ${datum.y.toFixed(2)}`}
+                labelComponent={
+                  <VictoryTooltip
+                    dy={0}
+                    pointerLength={30}
+                    constrainToVisibleArea
+                    flyoutStyle={{fill: '#fff'}}
+                  />
+                }
+              />
+            }>
+            {skillData.map((d, i): JSX.Element => {
+              return (
+                <VictoryPolarAxis
+                  key={i}
+                  dependentAxis
+                  style={{
+                    axisLabel: {
+                      padding: 20,
+                      fill: 'black',
+                      wordWrap: 'break-word',
+                    },
+                    axis: {stroke: 'none'},
+                    grid: {stroke: 'grey', strokeWidth: 0.25, opacity: 0.5},
+                  }}
+                  tickLabelComponent={
+                    <VictoryLabel labelPlacement="vertical" />
+                  }
+                  labelPlacement="perpendicular"
+                  axisValue={i + 1}
+                  label={d.x}
+                  domain={{y: [0, Math.ceil(maximum)]}}
+                  tickFormat={
+                    d.y === maximum ? t => Math.floor(t) : (): string => ''
+                  }
+                />
+              );
+            })}
+            <VictoryPolarAxis
+              labelPlacement="parallel"
+              tickFormat={(): string => ''}
+              style={{
+                axis: {stroke: COLORS.FT_PRIMARY},
+                grid: {stroke: 'grey', opacity: 0.5},
+              }}
+            />
+            <VictoryArea data={skillData} style={victoryAreaStyle} />
+          </VictoryChart>
+        </View>
+      )}
     </View>
   );
 }
@@ -137,25 +155,30 @@ export default function SkillsSection({
 const styles = StyleSheet.create({
   chartContainer: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-    borderRadius: 20,
-    padding: 10,
-    overflow: 'hidden',
+    paddingBottom: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   chart: {
     flex: 1,
   },
-  componentContainer: {
-    width: '100%',
-    height: '100%',
-  },
+  componentContainer: {},
   skillText: {
     fontSize: 18,
-    color: '#fff',
+    color: COLORS.FT_SECONDARY,
+    borderRadius: 20,
+    padding: 5,
   },
   headerView: {
-    marginBottom: 5,
+    marginBottom: 2,
     justifyContent: 'center',
     alignItems: 'center',
   },
 });
+
+const victoryAreaStyle: VictoryStyleInterface = {
+  data: {
+    fillOpacity: 0.2,
+    fill: COLORS.FT_PRIMARY,
+  },
+};
