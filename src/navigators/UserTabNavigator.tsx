@@ -6,6 +6,9 @@ import {RootStackParamList} from './StackNavigator';
 import ProfileScreen from '../screens/ProfileScreen';
 import ProjectsScreen from '../screens/ProjectsScreen';
 import AchievementsScreen from '../screens/AchievementsScreen';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
+import * as COLORS from '../styles/Colors';
 
 export const UserContext = createContext<User>({
   id: 0,
@@ -75,10 +78,49 @@ export default function UserTabNavigator({
       <Tab.Navigator
         initialRouteName="UserProfile"
         screenOptions={{headerShown: false}}>
-        <Tab.Screen name="UserProfile" component={ProfileScreen} />
-        <Tab.Screen name="Projects" component={ProjectsScreen} />
-        <Tab.Screen name="Achievements" component={AchievementsScreen} />
+        <Tab.Screen
+          name="UserProfile"
+          component={ProfileScreen}
+          options={{
+            tabBarLabel: 'Profile',
+            tabBarIcon: ProfileIcon,
+          }}
+        />
+        <Tab.Screen
+          name="Projects"
+          component={ProjectsScreen}
+          options={{
+            tabBarLabel: 'Projects',
+            tabBarIcon: ProjectIcon,
+          }}
+        />
+        <Tab.Screen
+          name="Achievements"
+          component={AchievementsScreen}
+          options={{
+            tabBarLabel: 'Achievements',
+            tabBarIcon: AchievementIcon,
+          }}
+        />
       </Tab.Navigator>
     </UserContext.Provider>
   );
 }
+
+type TabBarIconProps = {
+  focused: boolean;
+  color: string;
+  size: number;
+};
+
+const ProfileIcon = ({size}: TabBarIconProps) => {
+  return <Icon name="person" size={size} color={COLORS.FT_PRIMARY} />;
+};
+
+const ProjectIcon = ({size}: TabBarIconProps) => {
+  return <Icon name="library-books" size={size} color={COLORS.FT_PRIMARY} />;
+};
+
+const AchievementIcon = ({size}: TabBarIconProps) => {
+  return <Icon name="emoji-events" size={size} color={COLORS.FT_PRIMARY} />;
+};
