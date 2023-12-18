@@ -1,7 +1,6 @@
 import {StyleSheet, SafeAreaView} from 'react-native';
-import React, {useContext, useMemo} from 'react';
-// import {NativeStackScreenProps} from '@react-navigation/native-stack/lib/typescript/src/types';
-// import {RootStackParamList} from '../navigators/StackNavigator';
+import React, {useCallback, useContext, useMemo} from 'react';
+
 import ProfileSection from '../components/profile/ProfileSection';
 import {UserContext} from '../navigators/UserTabNavigator';
 // import {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
@@ -10,7 +9,6 @@ import * as COLORS from '../styles/Colors';
 import SkillsSection from '../components/profile/SkillsSection';
 import {CursusUser} from '../types/user';
 
-// type ProfileScreenProps = NativeStackScreenProps<RootStackParamList, 'Profile'>;
 // type ProfileScreenProps = BottomTabScreenProps<UserTabParamList, 'UserProfile'>;
 
 const ProfileScreen = (): JSX.Element => {
@@ -22,16 +20,23 @@ const ProfileScreen = (): JSX.Element => {
       (cursus_user: CursusUser): boolean => cursus_user.grade !== null,
     );
   }, [user]);
-
-  return (
-    <SafeAreaView style={styles.screenContainer}>
-      <ProfileSection user={user} containerStyle={styles.profileSection} />
-      {currentCursusUser !== undefined && (
+  const renderSkillSection = useCallback((): JSX.Element | undefined => {
+    if (currentCursusUser === undefined) {
+      return undefined;
+    } else {
+      return (
         <SkillsSection
           skills={currentCursusUser?.skills}
           containerStyle={styles.skillSection}
         />
-      )}
+      );
+    }
+  }, [currentCursusUser]);
+
+  return (
+    <SafeAreaView style={styles.screenContainer}>
+      <ProfileSection user={user} containerStyle={styles.profileSection} />
+      {renderSkillSection()}
     </SafeAreaView>
   );
 };
@@ -50,7 +55,10 @@ const styles = StyleSheet.create({
   },
   skillSection: {
     flex: 1,
+    width: '100%',
     marginHorizontal: 20,
+    paddingVertical: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
   },
 });
 
