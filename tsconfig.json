@@ -1,3 +1,10 @@
 {
-  "extends": "@tsconfig/react-native/tsconfig.json"
+  "extends": "@tsconfig/react-native/tsconfig.json",
+  "exclude": ["src/data/**/*"],
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+        "*": [ "src/client/types/custom_types/*"]
+    }
+  }
 }
