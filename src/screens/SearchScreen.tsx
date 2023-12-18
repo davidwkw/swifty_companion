@@ -14,8 +14,8 @@ import {
 import {useNetInfo} from '@react-native-community/netinfo';
 import Config from 'react-native-config';
 
-import * as COLORS from '../constants/Colors';
-import ftApi, {requestTimeout} from '../utils/ft-api';
+import * as COLORS from '../styles/Colors';
+import ftApi, {requestTimeout} from '../api/ft-api';
 import {User} from '../types/user';
 import NetworkIssueModal from '../components/NetworkIssueModal';
 import {monitorSignals} from '../utils/utils';
@@ -117,6 +117,7 @@ export default function SearchScreen(): JSX.Element {
           searchAccessibilityLabel="search bar for users"
           loading={isLoading}
           iconColor={COLORS.FT_PRIMARY}
+          autoCapitalize="none"
         />
         {searchBarError.visible && (
           <HelperText
@@ -168,10 +169,10 @@ const styles = StyleSheet.create({
   },
   labelText: {
     fontWeight: 'bold',
-    color: COLORS.FT_HEADER_TEXT,
+    color: '#fff',
   },
   searchContainer: {
-    width: '60%',
+    width: '65%',
     marginVertical: 10,
   },
   searchInput: {
