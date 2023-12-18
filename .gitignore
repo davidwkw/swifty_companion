@@ -67,3 +67,9 @@ yarn-error.log
 
 # env
 .env
+
+# eslint
+.eslintignore
+
+# sample data
+/src/data/**/*
