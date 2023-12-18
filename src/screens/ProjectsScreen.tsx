@@ -90,8 +90,8 @@ export default function ProjectsScreen(): JSX.Element {
                 />
               }
               dropdownVisible={isDropdownPressed}
-              onButtonPress={() => setIsDropdownPressed(!isDropdownPressed)}
-              externalPress={() => setIsDropdownPressed(false)}
+              onButtonPress={(): void => setIsDropdownPressed(!isDropdownPressed)}
+              externalPress={(): void => setIsDropdownPressed(false)}
             />
           </View>
           <List.AccordionGroup
