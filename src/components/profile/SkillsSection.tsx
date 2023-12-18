@@ -17,7 +17,7 @@ import {
   VictoryVoronoiContainer,
   VictoryTooltip,
 } from 'victory-native';
-import {VictoryStyleInterface} from 'victory-core';
+import {VictoryStyleInterface, VictoryStyleObject} from 'victory-core';
 
 import * as COLORS from '../../styles/Colors';
 
@@ -104,7 +104,7 @@ export default function SkillsSection({
                     dy={0}
                     pointerLength={30}
                     constrainToVisibleArea
-                    flyoutStyle={{fill: '#fff'}}
+                    flyoutStyle={flyoutStyle}
                   />
                 }
               />
@@ -182,3 +182,5 @@ const victoryAreaStyle: VictoryStyleInterface = {
     fill: COLORS.FT_PRIMARY,
   },
 };
+
+const flyoutStyle: VictoryStyleObject = {fill: '#fff'};
