@@ -1,44 +1,55 @@
 import {ScrollView, StyleSheet, Text, View, SafeAreaView} from 'react-native';
-import React, {useContext, useMemo, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
 import {List} from 'react-native-paper';
 // import {NativeStackScreenProps} from '@react-navigation/native-stack/lib/typescript/src/types';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-import {ProjectsUser} from '../types/user';
+import {ProjectsUser, User} from '../types/user';
 import ProjectItem from '../components/project/ProjectItem';
 import TouchableWithModalSelector from '../components/TouchableWithModalSelector';
 import {findProjectsWithStatus, hexToRGBA} from '../utils/utils';
 import {UserContext} from '../navigators/UserTabNavigator';
 import * as COLORS from '../styles/Colors';
 
+const sortProjectsByDateCallback = (currentProject: ProjectsUser, nextProject: ProjectsUser): number => {
+  if (nextProject.updated_at > currentProject.updated_at){
+    return 1;
+  } else if (nextProject.updated_at < currentProject.updated_at){
+    return -1;
+  } else{
+    return 0
+  }
+}
+
+const sortProjectsByScoreCallback = (currentProject: ProjectsUser, nextProject: ProjectsUser): number => {
+  if (currentProject.final_mark == null || nextProject.final_mark == null)
+    return 0;
+  if (nextProject.final_mark > currentProject.final_mark){
+    return 1;
+  } else if (nextProject.final_mark < currentProject.final_mark){
+    return -1;
+  } else{
+    return 0
+  }
+}
+
 export default function ProjectsScreen(): JSX.Element {
   const user = useContext(UserContext);
-  const {projects_users} = user;
+  let {projects_users}: User = user;
+  const [sortCallback, setSortCallback] = useState<(currentProject: ProjectsUser, nextProject: ProjectsUser) => number>((): (currentProject: ProjectsUser, nextProject: ProjectsUser) => number => sortProjectsByDateCallback)
+
+  useEffect((): void => {
+    projects_users.sort(sortCallback)
+  }, [sortCallback])
 
   const finishedProjects = useMemo(
     (): ProjectsUser[] =>
-      findProjectsWithStatus(projects_users, 'finished').sort(
-        (currentProject: ProjectsUser, nextProject: ProjectsUser): number => {
-          return nextProject.updated_at > currentProject.updated_at
-            ? 1
-            : nextProject.updated_at < currentProject.updated_at
-            ? -1
-            : 0;
-        },
-      ),
+      findProjectsWithStatus(projects_users, 'finished'),
     [projects_users],
   );
   const inProgressProjects = useMemo(
     (): ProjectsUser[] =>
-      findProjectsWithStatus(projects_users, 'in_progress').sort(
-        (currentProject: ProjectsUser, nextProject: ProjectsUser): number => {
-          return nextProject.updated_at > currentProject.updated_at
-            ? 1
-            : currentProject.updated_at < nextProject.updated_at
-            ? -1
-            : 0;
-        },
-      ),
+      findProjectsWithStatus(projects_users, 'in_progress'),
     [projects_users],
   );
   const failedProjects = useMemo(
