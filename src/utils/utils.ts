@@ -41,7 +41,14 @@ export function monitorSignals(signals: Iterable<AbortSignal>): AbortSignal {
       return signal;
     }
 
-    signal.addEventListener('abort', (): void => controller.abort());
+    const abortHandler = (): void => {
+      controller.abort();
+      for (const signal of signals) {
+        signal.removeEventListener('abort', abortHandler);
+      }
+    };
+
+    signal.addEventListener('abort', abortHandler);
   }
 
   return controller.signal;
