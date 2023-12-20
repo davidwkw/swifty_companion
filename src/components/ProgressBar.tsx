@@ -51,10 +51,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     overflow: 'hidden',
   },
-  innerBar: {
-    alignItems: 'center',
-    height: '100%',
-  },
+  innerBar: {},
   labelContainer: {
     justifyContent: 'center',
     alignItems: 'center',
