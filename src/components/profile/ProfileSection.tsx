@@ -42,7 +42,7 @@ export default function ProfileSection({
   } = user;
 
   const {level, grade} = useMemo(
-    (): CursusUser => findCurrentCursus(cursus_users),
+    (): CursusUser => findCurrentCursus(cursus_users)[0],
     [cursus_users],
   );
 
