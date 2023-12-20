@@ -63,7 +63,7 @@ export default function ProfileSection({
           source={{uri: image.versions.medium}}
           style={[styles.imageStyle, profileImageStyle]}
           resizeMode="cover"
-          defaultSource={require('../../assets/vector-flat-illustration-grayscale-avatar-600nw-2264922221 (1).webp')}
+          defaultSource={require('../../assets/vector-flat-illustration-grayscale-avatar-600nw-2264922221.webp')}
         />
       </View>
       <View style={styles.profileInfoContentContainer}>
