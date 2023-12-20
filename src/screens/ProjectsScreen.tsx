@@ -1,5 +1,5 @@
-import {ScrollView, StyleSheet, Text, View, SafeAreaView} from 'react-native';
-import React, {useContext, useEffect, useMemo, useState} from 'react';
+import {ScrollView, StyleSheet, Text, View, SafeAreaView, TouchableOpacity} from 'react-native';
+import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
 import {List} from 'react-native-paper';
 // import {NativeStackScreenProps} from '@react-navigation/native-stack/lib/typescript/src/types';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -35,37 +35,48 @@ const sortProjectsByScoreCallback = (currentProject: ProjectsUser, nextProject: 
 
 export default function ProjectsScreen(): JSX.Element {
   const user = useContext(UserContext);
-  let {projects_users}: User = user;
-  const [sortCallback, setSortCallback] = useState<(currentProject: ProjectsUser, nextProject: ProjectsUser) => number>((): (currentProject: ProjectsUser, nextProject: ProjectsUser) => number => sortProjectsByDateCallback)
+  const [projectsUsers, setProjectsUsers] = useState<ProjectsUser[]>([...user.projects_users].sort(sortProjectsByDateCallback))
 
-  useEffect((): void => {
-    projects_users.sort(sortCallback)
-  }, [sortCallback])
+  const sortProjectsUser = useCallback((cb: (currentProject: ProjectsUser, nextProject: ProjectsUser) => number): void => {
+    const newProjectsUser: ProjectsUser[] = [...projectsUsers];
+    newProjectsUser.sort(cb);
+    setProjectsUsers(newProjectsUser)
+  }, [])
 
   const finishedProjects = useMemo(
     (): ProjectsUser[] =>
-      findProjectsWithStatus(projects_users, 'finished'),
-    [projects_users],
+      findProjectsWithStatus(projectsUsers, 'finished'),
+    [projectsUsers],
   );
   const inProgressProjects = useMemo(
     (): ProjectsUser[] =>
-      findProjectsWithStatus(projects_users, 'in_progress'),
-    [projects_users],
+      findProjectsWithStatus(projectsUsers, 'in_progress'),
+    [projectsUsers],
   );
   const failedProjects = useMemo(
     (): ProjectsUser[] =>
       finishedProjects.filter(
-        (project: ProjectsUser): boolean => project['validated?'] === false,
+        (project: ProjectsUser): boolean => project['validated?'] === false
       ),
     [finishedProjects],
   );
   const passedProjects = useMemo(
     (): ProjectsUser[] =>
       finishedProjects.filter(
-        (project: ProjectsUser): boolean => project['validated?'] === true,
+        (project: ProjectsUser): boolean => project['validated?'] === true
       ),
     [finishedProjects],
   );
+
+  const sortModalByDateCallback = useCallback((): void => {
+    sortProjectsUser(sortProjectsByDateCallback);
+    setIsDropdownPressed(false);
+  }, [])
+
+  const sortModalByScoreCallback = useCallback((): void => {
+    sortProjectsUser(sortProjectsByScoreCallback);
+    setIsDropdownPressed(false);
+  }, [])
 
   const [expandedAccordionID, setExpandedAccordionID] = useState<number>(
     (): number => {
@@ -80,9 +91,7 @@ export default function ProjectsScreen(): JSX.Element {
       return expandId;
     },
   );
-
   const [isDropdownPressed, setIsDropdownPressed] = useState<boolean>(false);
-
   return (
     <SafeAreaView style={styles.screenContainer}>
       <View style={styles.projectsContainer}>
@@ -103,6 +112,10 @@ export default function ProjectsScreen(): JSX.Element {
               dropdownVisible={isDropdownPressed}
               onButtonPress={(): void => setIsDropdownPressed(!isDropdownPressed)}
               externalPress={(): void => setIsDropdownPressed(false)}
+              modalOptions={[
+                {title: 'Date', callback: sortModalByDateCallback, icon: 'calendar-month'},
+                {title: 'Score', callback: sortModalByScoreCallback, icon: '123'},
+              ]}
             />
           </View>
           <List.AccordionGroup
