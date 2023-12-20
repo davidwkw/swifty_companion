@@ -10,17 +10,10 @@ import {
   TextStyle,
 } from 'react-native';
 import React, {PropsWithChildren, useMemo} from 'react';
-import {openEmail, openPhone} from '../../utils/utils';
+import {openEmail, openPhone, findCurrentCursus} from '../../utils/utils';
 import * as COLORS from '../../styles/Colors';
 import {User, CursusUser} from '../../types/user';
 import ProgressBar from '../ProgressBar';
-
-const findCurrentCursus = (cursusUsers: CursusUser[]): CursusUser => {
-  const currentCursusUsers = cursusUsers.filter(
-    (cursusUser: CursusUser): boolean => cursusUser.grade !== null,
-  );
-  return currentCursusUsers[0];
-};
 
 type ProfileSectionProps = PropsWithChildren<{
   user: User;
@@ -70,6 +63,7 @@ export default function ProfileSection({
           source={{uri: image.versions.medium}}
           style={[styles.imageStyle, profileImageStyle]}
           resizeMode="cover"
+          defaultSource={require('../../assets/vector-flat-illustration-grayscale-avatar-600nw-2264922221 (1).webp')}
         />
       </View>
       <View style={styles.profileInfoContentContainer}>

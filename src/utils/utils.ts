@@ -1,5 +1,5 @@
 import {Linking} from 'react-native';
-import {ProjectsUser} from '../types/user';
+import {ProjectsUser, CursusUser} from '../types/user';
 
 export function openWebsite(websiteLink: string) {
   Linking.openURL(websiteLink);
@@ -53,3 +53,10 @@ export function monitorSignals(signals: Iterable<AbortSignal>): AbortSignal {
 
   return controller.signal;
 }
+
+export const findCurrentCursus = (cursusUsers: CursusUser[]): CursusUser => {
+  const currentCursusUsers = cursusUsers.filter(
+    (cursusUser: CursusUser): boolean => cursusUser.grade !== null,
+  );
+  return currentCursusUsers[0];
+};
