@@ -17,7 +17,7 @@ const sortProjectsByDateCallback = (currentProject: ProjectsUser, nextProject: P
   } else if (nextProject.updated_at < currentProject.updated_at){
     return -1;
   } else{
-    return 0
+    return 0;
   }
 }
 
@@ -29,18 +29,18 @@ const sortProjectsByScoreCallback = (currentProject: ProjectsUser, nextProject: 
   } else if (nextProject.final_mark < currentProject.final_mark){
     return -1;
   } else{
-    return 0
+    return 0;
   }
 }
 
 export default function ProjectsScreen(): JSX.Element {
   const user = useContext(UserContext);
-  const [projectsUsers, setProjectsUsers] = useState<ProjectsUser[]>([...user.projects_users].sort(sortProjectsByDateCallback))
+  const [projectsUsers, setProjectsUsers] = useState<ProjectsUser[]>([...user.projects_users].sort(sortProjectsByDateCallback));
 
   const sortProjectsUser = useCallback((cb: (currentProject: ProjectsUser, nextProject: ProjectsUser) => number): void => {
     const newProjectsUser: ProjectsUser[] = [...projectsUsers];
     newProjectsUser.sort(cb);
-    setProjectsUsers(newProjectsUser)
+    setProjectsUsers(newProjectsUser);
   }, [])
 
   const finishedProjects = useMemo(
