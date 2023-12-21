@@ -91,33 +91,35 @@ export default function ProjectsScreen(): JSX.Element {
       return expandId;
     },
   );
+
   const [isDropdownPressed, setIsDropdownPressed] = useState<boolean>(false);
   return (
     <SafeAreaView style={styles.screenContainer}>
       <View style={styles.projectsContainer}>
-        <ScrollView contentContainerStyle={styles.projectsScrollContainer}>
-          <View style={styles.accordionSectionContainer}>
-            <Text style={styles.accordionSection}>Projects:</Text>
-            <TouchableWithModalSelector
-              label="Sort by"
-              labelStyle={styles.dropdownLabel}
-              containerStyle={styles.dropdownContainer}
-              left={<Icon name="sort" style={styles.dropdownLabel} />}
-              right={
-                <Icon
-                  name={!isDropdownPressed ? 'expand-less' : 'expand-more'}
-                  style={styles.dropdownLabel}
-                />
-              }
-              dropdownVisible={isDropdownPressed}
-              onButtonPress={(): void => setIsDropdownPressed(!isDropdownPressed)}
-              externalPress={(): void => setIsDropdownPressed(false)}
-              modalOptions={[
-                {title: 'Date', callback: sortModalByDateCallback, icon: 'calendar-month'},
-                {title: 'Score', callback: sortModalByScoreCallback, icon: '123'},
-              ]}
-            />
-          </View>
+        <View style={styles.accordionSectionContainer}>
+          <Text style={styles.accordionSection}>Projects:</Text>
+          <TouchableWithModalSelector
+            label="Sort by"
+            labelStyle={styles.dropdownLabel}
+            containerStyle={styles.dropdownContainer}
+            left={<Icon name="sort" style={styles.dropdownLabel} />}
+            right={
+              <Icon
+                name={!isDropdownPressed ? 'expand-less' : 'expand-more'}
+                style={styles.dropdownLabel}
+              />
+            }
+            dropdownVisible={isDropdownPressed}
+            onButtonPress={(): void => setIsDropdownPressed(!isDropdownPressed)}
+            externalPress={(): void => setIsDropdownPressed(false)}
+            modalOptions={[
+              {title: 'Date', callback: sortModalByDateCallback, icon: 'calendar-month'},
+              {title: 'Score', callback: sortModalByScoreCallback, icon: '123'},
+            ]}
+          />
+        </View>
+        {projectsUsers.length > 0
+        ? (<ScrollView contentContainerStyle={styles.projectsScrollContainer}>
           <List.AccordionGroup
             expandedId={expandedAccordionID}
             onAccordionPress={(currentExpandedId: number | string): void => {
@@ -195,7 +197,11 @@ export default function ProjectsScreen(): JSX.Element {
               </List.Accordion>
             )}
           </List.AccordionGroup>
-        </ScrollView>
+        </ScrollView>)
+        :
+        <View style={styles.noProjectsContainer}>
+          <Text style={{fontSize: 18, color: COLORS.FT_SECONDARY}}>No projects available</Text>
+        </View>}
       </View>
     </SafeAreaView>
   );
@@ -253,5 +259,10 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginHorizontal: '0.2%',
     color: COLORS.FT_SECONDARY,
+  },
+  noProjectsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
