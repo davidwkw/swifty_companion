@@ -10,7 +10,7 @@ import {
   TextStyle,
 } from 'react-native';
 import React, {PropsWithChildren, useMemo} from 'react';
-import {openEmail, openPhone, findCurrentCursus} from '../../utils/utils';
+import {openEmail, openPhone, findCurrentCursusUsers} from '../../utils/utils';
 import * as COLORS from '../../styles/Colors';
 import {User, CursusUser} from '../../types/user';
 import ProgressBar from '../ProgressBar';
@@ -41,8 +41,20 @@ export default function ProfileSection({
     cursus_users,
   } = user;
 
-  const {level, grade} = useMemo(
-    (): CursusUser => findCurrentCursus(cursus_users)[0],
+  const {level, grade} = useMemo<CursusUser | {level: number, grade: string}>(
+    (): CursusUser | {level: number, grade: string} => {
+      const cursusUsers = findCurrentCursusUsers(cursus_users);
+      if (cursusUsers.length !== 0) {
+        console.log('found non-null cursus user')
+        return cursusUsers[0];
+      } else if (cursus_users.length !== 0) {
+        console.log('returning latest null cursus user')
+        return cursus_users[cursus_users.length - 1]
+      } else {
+        console.log('returning default level and grade')
+        return {level: 0, grade: 'Novice'};
+      }
+    },
     [cursus_users],
   );
 
