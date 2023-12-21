@@ -54,7 +54,9 @@ export function monitorSignals(signals: Iterable<AbortSignal>): AbortSignal {
   return controller.signal;
 }
 
-export const findCurrentCursus = (cursusUsers: CursusUser[]): CursusUser[] => {
+export const findCurrentCursusUsers = (
+  cursusUsers: CursusUser[],
+): CursusUser[] => {
   const currentCursusUsers = cursusUsers.filter(
     (cursusUser: CursusUser): boolean => cursusUser.grade !== null,
   );
