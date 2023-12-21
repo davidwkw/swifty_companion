@@ -1,4 +1,4 @@
-import {StyleSheet, SafeAreaView, FlatList} from 'react-native';
+import {StyleSheet, SafeAreaView, FlatList, View, Text} from 'react-native';
 import React, {useContext} from 'react';
 import {UserContext} from '../navigators/UserTabNavigator';
 import AchievementItem from '../components/achievement/AchievementItem';
@@ -10,12 +10,18 @@ export default function AchievementsScreen() {
 
   return (
     <SafeAreaView style={styles.screenContainer}>
-      <FlatList
+      {achievements.length > 0
+      ? <FlatList
         data={achievements}
         renderItem={({item}): JSX.Element => <AchievementItem {...item} />}
         keyExtractor={(item): string => item.id.toString()}
         showsVerticalScrollIndicator={false}
       />
+      :
+      <View style={styles.noAchievementContainer}>
+        <Text style={styles.textStyle}>No achievements to display</Text>
+      </View>
+      }
     </SafeAreaView>
   );
 }
@@ -25,5 +31,14 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: COLORS.FT_PRIMARY,
+  },
+  noAchievementContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  textStyle: {
+    color: 'white',
+    fontSize: 16,
   },
 });
