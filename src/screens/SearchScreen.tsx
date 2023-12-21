@@ -54,7 +54,6 @@ export default function SearchScreen(): JSX.Element {
 
     setIsLoading(true);
     try {
-      console.log('sending request..');
       const response = await ftApi.get<User>(
         Config.USER_DETAILS_ROUTE + searchInput,
         {

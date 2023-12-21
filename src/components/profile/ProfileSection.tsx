@@ -45,13 +45,10 @@ export default function ProfileSection({
     (): CursusUser | {level: number, grade: string} => {
       const cursusUsers = findCurrentCursusUsers(cursus_users);
       if (cursusUsers.length !== 0) {
-        console.log('found non-null cursus user')
         return cursusUsers[0];
       } else if (cursus_users.length !== 0) {
-        console.log('returning latest null cursus user')
         return cursus_users[cursus_users.length - 1]
       } else {
-        console.log('returning default level and grade')
         return {level: 0, grade: 'Novice'};
       }
     },
