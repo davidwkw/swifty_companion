@@ -77,7 +77,7 @@ export default function UserTabNavigator({
     <UserContext.Provider value={route.params.user}>
       <Tab.Navigator
         initialRouteName="UserProfile"
-        screenOptions={{headerShown: false}}>
+        screenOptions={{headerShown: false, tabBarActiveTintColor: COLORS.FT_PRIMARY, tabBarInactiveTintColor: 'black'}}>
         <Tab.Screen
           name="UserProfile"
           component={ProfileScreen}
