@@ -18,24 +18,22 @@ const ProfileScreen = (): JSX.Element => {
   CursusUser[] => findCurrentCursusUsers(user.cursus_users)
 , [user]);
   const renderSkillSection = useCallback((): JSX.Element | undefined => {
-    if (!currentCursusUserArray && !user.cursus_users) {
+    if (currentCursusUserArray.length === 0 && user.cursus_users.length === 0){
       return undefined;
-    } else if (currentCursusUserArray) {
+    } else if (currentCursusUserArray.length !== 0){
       return (
         <SkillsSection
-          skills={currentCursusUserArray[0]?.skills}
-          containerStyle={styles.skillSection}
-        />
-      );
-    } else if (user.cursus_users){
-      return (
-        <SkillsSection
-          skills={user.cursus_users[-1]?.skills}
+          skills={currentCursusUserArray[0].skills}
           containerStyle={styles.skillSection}
         />
       );
     } else {
-      return undefined;
+      return (
+        <SkillsSection
+          skills={user.cursus_users[user.cursus_users.length - 1].skills}
+          containerStyle={styles.skillSection}
+        />
+      );
     }
   }, [currentCursusUserArray]);
 
