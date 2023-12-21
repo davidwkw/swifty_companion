@@ -8,30 +8,36 @@ import {UserContext} from '../navigators/UserTabNavigator';
 import * as COLORS from '../styles/Colors';
 import SkillsSection from '../components/profile/SkillsSection';
 import {CursusUser} from '../types/user';
+import { findCurrentCursusUsers } from '../utils/utils';
 
 // type ProfileScreenProps = BottomTabScreenProps<UserTabParamList, 'UserProfile'>;
 
 const ProfileScreen = (): JSX.Element => {
   const user = useContext(UserContext);
-  const currentCursusUser = useMemo<CursusUser | undefined>(():
-    | CursusUser
-    | undefined => {
-    return user.cursus_users.find(
-      (cursus_user: CursusUser): boolean => cursus_user.grade !== null,
-    );
-  }, [user]);
+  const currentCursusUserArray = useMemo<CursusUser[]>(():
+  CursusUser[] => findCurrentCursusUsers(user.cursus_users)
+, [user]);
   const renderSkillSection = useCallback((): JSX.Element | undefined => {
-    if (currentCursusUser === undefined) {
+    if (!currentCursusUserArray && !user.cursus_users) {
       return undefined;
-    } else {
+    } else if (currentCursusUserArray) {
       return (
         <SkillsSection
-          skills={currentCursusUser?.skills}
+          skills={currentCursusUserArray[0]?.skills}
           containerStyle={styles.skillSection}
         />
       );
+    } else if (user.cursus_users){
+      return (
+        <SkillsSection
+          skills={user.cursus_users[-1]?.skills}
+          containerStyle={styles.skillSection}
+        />
+      );
+    } else {
+      return undefined;
     }
-  }, [currentCursusUser]);
+  }, [currentCursusUserArray]);
 
   return (
     <SafeAreaView style={styles.screenContainer}>
